@@ -1,0 +1,29 @@
+{
+  "name": "ammojs-tsd-generator",
+  "version": "1.0.0",
+  "description": "Ammo.js tsd generator.",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npm run typescript && npm run phantomjs",
+    "phantomjs": "node ./node_modules/phantomjs/bin/phantomjs ./build/index.js",
+    "typescript": "./node_modules/.bin/tsc ./index.ts --outDir ./build/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yingran/definitely-tyepd.git"
+  },
+  "author": "yingran",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yingran/definitely-tyepd/issues"
+  },
+  "homepage": "https://github.com/yingran/definitely-tyepd#readme",
+  "dependencies": {
+    "phantomjs": "^2.1.7+deprecated",
+    "typescript": "^2.1.4"
+  },
+  "devDependencies": {
+    "@types/phantomjs": "^1.9.29"
+  }
+}
