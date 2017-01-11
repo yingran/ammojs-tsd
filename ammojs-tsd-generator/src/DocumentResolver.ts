@@ -1,38 +1,17 @@
 //executed within the page content sandbox.
 
-interface Method {
-    name: string;
-    modifier: string;
-    type: string;
-    arguments: Array<MethodArgument>;
-}
-
-interface MethodArgument {
-    type: string,
-    name: string
-}
-
-interface Attribute {
-    name: string;
-    modifier: string;
-    type: string;
-}
-
-interface DocumentContent {
-    name: string;
-    constructor: string;
-    methods: Array<Method>;
-    attributes: Array<Attribute>;
-}
+import * as DocumentContent from "./DocumentContent";
 
 class DocumentResolver {
 
-    content: DocumentContent;
+    content: DocumentContent.ClassContent;
 
     constructor() {
         this.content = {
             name: "",
-            constructor: "",
+            constructor: {
+                arguments: []
+            },
             methods: [],
             attributes: []
         };
@@ -69,7 +48,7 @@ class DocumentResolver {
     private generateAttributes( table: Element, modifier: string = "public" ) {
         let rows = table.querySelectorAll("tr");
         for ( let i=0, len=rows.length; i<len; i++ ) {
-            let attribute: Attribute = {
+            let attribute: DocumentContent.ClassAttribute = {
                 name: "",
                 modifier: modifier,
                 type: "any"
@@ -87,7 +66,7 @@ class DocumentResolver {
     private generateMethods( table: Element, modifier: string = "public" ): void {
         let rows = table.querySelectorAll("tr");
         for ( let i=0, len=rows.length; i<len; i++ ) {
-            let method: Method = {
+            let method: DocumentContent.ClassMethod = {
                 name: "",
                 modifier: modifier,
                 type: "any",
@@ -100,24 +79,57 @@ class DocumentResolver {
                 method.type = this.getType( tdLeft );
                 method.name = this.getName( methodText );
                 method.arguments = this.getArguments(methodText);
-                this.content.methods.push(method);
+                if ( method.name === this.content.name ) {  //constructor
+                    this.content.constructor = {
+                        arguments: method.arguments
+                    };
+                } else if ( /^operator[^\w]/.test(method.name) ) {
+                    let operator = method.name.replace( /^operator/, "");
+                    if ( method.arguments[0] && method.arguments[0].type === "btVector3" ) {
+                        switch(operator) {
+                            case "+=":
+                                method.name = "op_add";
+                                break;
+                            case "-=":
+                                method.name = "op_sub";
+                                break;
+                            case "*=":
+                                method.name = "op_mul";
+                                break;
+                            case "/=":
+                            default:
+                                method.name = "";
+                                break;
+                        }
+                    } else {
+                        method.name = "";
+                    }
+                    if ( method.name ) {    
+                        this.content.methods.push(method);
+                    }
+                } else {
+                    this.content.methods.push(method);
+                }
             }
         }
     }
 
-    private getName( methodText: string ): string {
-        return methodText.split(" ")[0];
+    private getName( text: string ): string {
+        return text.split(" ")[0].replace(/^[^\w]/, "");
     }
 
     private getArguments( methodText: string ): Array<any> {
-        let args : Array<MethodArgument> = [];
-        let argsTexts: Array<string> = methodText.replace(/^[^(]*\(([^)]+)\).*$/gi, "$1").split(/, */);
+        let args : Array<DocumentContent.ClassMethodArgument> = [];
+        let argsTexts: Array<string> = methodText.replace(/^[^(]*\(([^)]*)\).*$/gi, "$1").split(/, */);
         argsTexts.forEach((text, index) => {
+            if ( !text ) {
+                return;
+            }
             let texts = text.split(" ");
             let len = texts.length;
-            let arg: MethodArgument = {
-                name: (texts[len-2] || "any").replace(/^[^\w]/, ""),
-                type: texts[len-1].replace(/^[^\w]/, "")
+            let arg: DocumentContent.ClassMethodArgument = {
+                type: (texts[len-2] || "any").replace(/^[^\w]/, ""),
+                name: texts[len-1].replace(/^[^\w]*(\w+).*$/, "$1")
             };
             args.push(arg);
         });

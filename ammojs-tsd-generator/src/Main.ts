@@ -1,19 +1,28 @@
 import * as webpage from "webpage";
-import "./DocumentResolver";
+
+import TSDGenerator from "./TSDGenerator";
+
+import "./DocumentResolver";    //compile to js file
 
 let page: any;
 
+let fs = require("fs"); //phantomjs's fs api
+
 page = webpage.create();
 
-page.open( "http://localhost:8080/btDiscreteDynamicsWorld.html", (status: string): void => {
+fs.makeDirectory("tsd");
+
+page.open( "http://localhost:8080/btVector3.html", (status: string): void => {
     if ( status === "success" ) {
-        if (page.injectJs("./src/DocumentResolver.js")) {
-            let content = page.evaluate(() => {
-                let resolver = new DocumentResolver();
+        page.injectJs("./src/DocumentResolver.js")
+        let content = page.evaluateJavaScript(`
+            function() {
+                var resolver = new DocumentResolver();
                 return resolver.content;
-            });
-            console.log(JSON.stringify(content));
-        };
+            }
+        `);
+        let tsdGenerator = new TSDGenerator(content);
+        fs.write(`./tsd/${tsdGenerator.pathname}`, tsdGenerator.contentString, "w");
     }
     phantom.exit();
 } )
