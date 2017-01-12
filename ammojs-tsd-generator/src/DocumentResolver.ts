@@ -20,7 +20,7 @@ class DocumentResolver {
     }
 
     private generateName(): void {
-        this.content.name = document.querySelector(".title").textContent.split(" ")[0];
+        this.content.name = document.querySelector(".title").textContent.split(" ")[0].replace(/^.*?(\w+)[^\w]*$/, "$1"); //remove symbols and characters before them. 
     }
 
     private generateMembers(): void {
@@ -56,9 +56,11 @@ class DocumentResolver {
             let tdLeft = rows[i].querySelector("td.memItemLeft");
             let tdRight = rows[i].querySelector("td.memItemRight");
             if ( tdLeft && tdRight ) {
-                attribute.type = this.getType( tdLeft );
+                attribute.type = this.formatType( this.getType( tdLeft ) );
                 attribute.name = this.getName( tdRight.textContent );
-                this.content.attributes.push(attribute);
+                if ( attribute.name ) {
+                    this.content.attributes.push(attribute);
+                }
             }
         }
     }
@@ -128,7 +130,7 @@ class DocumentResolver {
             let texts = text.split(" ");
             let len = texts.length;
             let arg: DocumentContent.ClassMethodArgument = {
-                type: (texts[len-2] || "any").replace(/^[^\w]/, ""),
+                type: this.formatType( (texts[len-2] || "any").replace(/^[^\w]/, "") ),
                 name: texts[len-1].replace(/^[^\w]*(\w+).*$/, "$1")
             };
             args.push(arg);
@@ -147,20 +149,32 @@ class DocumentResolver {
         } else {
             let texts = td.textContent.replace( /(&nbsp;|\u00A0)$/gi, "" ).split(" ");
             let tmpType = texts[texts.length-1];
-            switch (tmpType) {
-                case "void":
-                    type = tmpType;
-                    break;
-                case "bool":
-                    type = "boolean";
-                    break;
-                case "int":
-                    type = "number";
-                    break;
-                default:
+            type = this.formatType( tmpType );
+        }
+        return type;
+    }
+
+    private formatType( type: string ): string {
+        switch (type) {
+            case "void":
+            case "any":
+                break;
+            case "bool":
+                type = "boolean";
+                break;
+            case "int":
+            case "long":
+            case "short":
+                type = "number";
+                break;
+            case "char":
+                type = "string";
+                break;
+            default:
+                if ( !/^bt?[A-Z]+/.test(type) ) {
                     type = "any";
-                    break;
-            }
+                }
+                break;
         }
         return type;
     }
