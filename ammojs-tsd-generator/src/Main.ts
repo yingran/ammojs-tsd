@@ -18,14 +18,14 @@ page = webpage.create();
 
 fs.makeDirectory("tsd");
 
-page.open( "http://localhost:8080/annotated.html", (status: string): void => {
+page.open( `${basePath}annotated.html`, (status: string): void => {
     if ( status === "success" ) {
         classPathnames = page.evaluate(() => {
             let anchors = document.querySelectorAll("table.directory td.entry a");
             let links: Array<string> = [];
             for ( let i=0, len=anchors.length; i<len; i++ ) {
                 let pathname = anchors[i].getAttribute("href");
-                if ( /^class/gi.test(pathname) ) {
+                if ( /^(class|struct)/gi.test(pathname) ) {
                     links.push( pathname );
                 }
             }

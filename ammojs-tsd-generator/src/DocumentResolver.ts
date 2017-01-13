@@ -56,7 +56,7 @@ class DocumentResolver {
             let tdLeft = rows[i].querySelector("td.memItemLeft");
             let tdRight = rows[i].querySelector("td.memItemRight");
             if ( tdLeft && tdRight ) {
-                attribute.type = this.formatType( this.getType( tdLeft ) );
+                attribute.type = this.getType( tdLeft );
                 attribute.name = this.getName( tdRight.textContent );
                 if ( attribute.name ) {
                     this.content.attributes.push(attribute);
@@ -83,7 +83,7 @@ class DocumentResolver {
                 method.arguments = this.getArguments(methodText);
                 if ( method.name === this.content.name ) {  //constructor
                     this.content.constructor = {
-                        arguments: method.arguments
+                        arguments: this.content.constructor.arguments.length > method.arguments.length ? this.content.constructor.arguments : method.arguments
                     };
                 } else if ( /^operator[^\w]/.test(method.name) ) {
                     let operator = method.name.replace( /^operator/, "");
@@ -133,6 +133,9 @@ class DocumentResolver {
                 type: this.formatType( (texts[len-2] || "any").replace(/^[^\w]/, "") ),
                 name: texts[len-1].replace(/^[^\w]*(\w+).*$/, "$1")
             };
+            if ( /[^\w]/.test(arg.name) || arg.name === "void" ) {
+                arg.name = `arg${index+1}`;
+            }
             args.push(arg);
         });
         return args;
@@ -148,9 +151,9 @@ class DocumentResolver {
             type = anchor.textContent.replace(/^[^\w]/, "");
         } else {
             let texts = td.textContent.replace( /(&nbsp;|\u00A0)$/gi, "" ).split(" ");
-            let tmpType = texts[texts.length-1];
-            type = this.formatType( tmpType );
+            type = texts[texts.length-1];
         }
+        type = this.formatType( type );
         return type;
     }
 
@@ -163,12 +166,16 @@ class DocumentResolver {
                 type = "boolean";
                 break;
             case "int":
+            case "float":
             case "long":
             case "short":
                 type = "number";
                 break;
             case "char":
                 type = "string";
+                break;
+            case "btScalar":
+                type = "any";
                 break;
             default:
                 if ( !/^bt?[A-Z]+/.test(type) ) {

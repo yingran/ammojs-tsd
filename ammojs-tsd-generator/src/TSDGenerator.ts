@@ -40,7 +40,7 @@ export default class TSDGenerator {
     private getArgumentsString( args: Array<DocumentContent.ClassMethodArgument> ): string {
         let argList: Array<string> = [];
         args.forEach(( arg: DocumentContent.ClassMethodArgument ) => {
-            argList.push( `${arg.name}: ${arg.type}` );
+            argList.push( `${arg.name}?: ${arg.type}` );
         });
         return argList.join(", ");
     }
