@@ -1,0 +1,11 @@
+{
+  "name": "@types/ammo.js",
+  "version": "0.0.1",
+  "description": "TypeScript definitions for ammo.js.",
+  "main": "index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "MIT"
+}
