@@ -1,5 +1,5 @@
 {
-  "name": "@types/ammo.js",
+  "name": "@types/ammo",
   "version": "0.0.1",
   "description": "TypeScript definitions for ammo.js.",
   "main": "index.d.ts",
