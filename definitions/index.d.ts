@@ -171,6 +171,7 @@
 /// <reference path="ClosestConvexResultCallback.d.ts" />
 /// <reference path="ClosestRayResultCallback.d.ts" />
 /// <reference path="ContactResultCallback.d.ts" />
+/// <reference path="ConcreteContactResultCallback.d.ts" />
 /// <reference path="ConvexResultCallback.d.ts" />
 /// <reference path="LocalConvexResult.d.ts" />
 /// <reference path="LocalRayResult.d.ts" />

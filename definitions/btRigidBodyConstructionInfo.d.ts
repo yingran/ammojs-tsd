@@ -3,7 +3,7 @@
 
                 export class btRigidBodyConstructionInfo { 
 
-                    constructor( mass?: any, motionState?: btMotionState, collisionShape?: btCollisionShape, localInertia?: btVector3, 0?: any, 0?: any ); 
+                    constructor( mass?: any, motionState?: btMotionState, collisionShape?: any, localInertia?: btVector3, 0?: any, 0?: any ); 
 
                     m_mass: any; 
 m_motionState: btMotionState; 
